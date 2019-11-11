@@ -86,7 +86,7 @@ clear_successfully_command_response = "Вы успешно очистили сп
 
 tasks_empty_command_response = "Извините, но ваш список пустой 😌"
 
-show_tasks_command_response = "Хорошо , вот ваш список блюд:\n " 
+show_tasks_command_response = "Хорошо, вот ваш список блюд:\n " 
 
 
 updated_tasks_command_response = "Отлично 🤗! Вот ваш обновленный список блюд:" \
