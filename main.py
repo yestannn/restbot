@@ -18,7 +18,7 @@ DB_Password = os.environ['DB_Password']
 logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level = logging.INFO)
 logger = logging.getLogger(__name__)
-LIST_OF_ADMINS = [771840280]„
+LIST_OF_ADMINS = [771840280]
 custom_keyboard = [['Добавить в корзину 🧺', 'Удалить из корзины 🧺'],
                    ['Указать стол 📅', 'Показать корзину 🧺'],
                    ['Очистить корзину 🧺', 'Заказать 🛎️'],
