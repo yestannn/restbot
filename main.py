@@ -18,11 +18,11 @@ DB_Password = os.environ['DB_Password']
 logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level = logging.INFO)
 logger = logging.getLogger(__name__)
-LIST_OF_ADMINS = [771840280]
-custom_keyboard = [['/start', '/order'],
-                   ['/add', '/delete'],
-                   ['/clear', '/showmenu'],
-                   ['/feedback', '/help']]
+LIST_OF_ADMINS = [771840280]„
+custom_keyboard = [['Добавить в корзину 🧺', 'Удалить из корзины 🧺'],
+                   ['Указать стол 📅', 'Показать корзину 🧺'],
+                   ['Очистить корзину 🧺', 'Заказать 🛎️'],
+                   ['Отправить отзыв 📬', 'Все функии 🗒️']]
                    
 reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard = True)
 connection = psycopg2.connect(database = DB_Database, user = DB_User, password = DB_Password, host = DB_Host, port = DB_Port)
