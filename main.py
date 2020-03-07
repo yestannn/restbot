@@ -6,7 +6,7 @@ import psycopg2
 import bot_messages, bot_states
 
 from datetime import datetime
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, ConversationHandler, CallbackQueryHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, ConversationHandler, CallbackQueryHandler, PrefixHandler
 from telegram import InlineQueryResultArticle, InputTextMessageContent, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
 from functools import wraps
 
@@ -350,7 +350,7 @@ def main():
         fallbacks = [CommandHandler('cancel', cancel)]
     )
 
-    refixHandler('Заказать 🛎️', callback)
+    order_handler = PrefixHandler('Заказать 🛎️', callback)
     add_handler = CommandHandler('add', add_task)
     start_handler = CommandHandler('start', start)
     help_handler = CommandHandler('help', help)
