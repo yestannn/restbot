@@ -4,12 +4,10 @@ import time
 import os
 import psycopg2
 import bot_messages, bot_states
-
 from datetime import datetime
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, ConversationHandler, CallbackQueryHandler, PrefixHandler
 from telegram import InlineQueryResultArticle, InputTextMessageContent, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
 from functools import wraps
-
 DB_Host = os.environ['DB_Host']
 DB_Database = os.environ['DB_Database']
 DB_User = os.environ['DB_User']
@@ -19,49 +17,41 @@ logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message
                      level = logging.INFO)
 logger = logging.getLogger(__name__)
 LIST_OF_ADMINS = [771840280]
-custom_keyboard = [['🛎Заказать'],
-                   ['🧺Добавить в корзину', '🧺Показать ваш заказ'],
-                   ['🗑Очистить корзину', '🗑Удалить из корзины'],
-                   ['📅Указать номер стола', '📬Отправить отзыв'],
-                   ['🗒️Все функии']]
+custom_keyboard = [['Добавить в корзину 🧺', 'Удалить из корзины 🧺'],
+                   ['Указать стол 📅', 'Показать корзину 🧺'],
+                   ['Очистить корзину 🧺', 'Заказать 🛎️'],
+                   ['Отправить отзыв 📬', 'Все функии 🗒️']]
                    
 reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard = True)
 connection = psycopg2.connect(database = DB_Database, user = DB_User, password = DB_Password, host = DB_Host, port = DB_Port)
-
 def log_text(debug_text):
   print(debug_text)
-
 def send_message(context, chat_id, text):
     try:
         context.bot.send_message(chat_id = chat_id, text = text, parse_mode = "Markdown", reply_markup = reply_markup)
     except:
         log_text('No such chat_id using a bot')
-
 def sql_table(connection):
     cur = connection.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS tasks(id BIGSERIAL PRIMARY KEY, user_id integer, task text)")
     connection.commit()
     cur.close()
-
 def sql_insert(connection, user_id, new_task):
     cur = connection.cursor()
     cur.execute("INSERT INTO tasks(user_id, task) VALUES(%s, %s)", (user_id, new_task, ))
     connection.commit()
     cur.close()
-
 def sql_clear(user_id):
     cur = connection.cursor()
     cur.execute("DELETE FROM tasks WHERE user_id = %s", (user_id, ))
     connection.commit()
     cur.close()
-
 def sql_delete(user_id, task_number):
     cur = connection.cursor()
     task_number = task_number - 1
     cur.execute("DELETE FROM tasks WHERE id in (SELECT id FROM tasks WHERE user_id = %s LIMIT 1 OFFSET %s)", (user_id, task_number))
     connection.commit()
     cur.close()
-
 def sql_number_of_tasks(user_id):
     cur = connection.cursor()
     cur.execute("SELECT COUNT(*) FROM tasks WHERE user_id = %s", (user_id, ))
@@ -70,7 +60,6 @@ def sql_number_of_tasks(user_id):
     connection.commit()
     cur.close()
     return result
-
 def sql_get_tasks(user_id):
     cur = connection.cursor()
     cur.execute("SELECT task FROM tasks WHERE user_id = %s", (user_id, ))
@@ -78,7 +67,6 @@ def sql_get_tasks(user_id):
     connection.commit()
     cur.close()
     return tasks
-
 def sql_get_distinct_ids():
     cur = connection.cursor()
     cur.execute("SELECT COUNT (DISTINCT user_id) FROM tasks")
@@ -86,7 +74,6 @@ def sql_get_distinct_ids():
     connection.commit()
     cur.close()
     return distinct_ids[0][0]
-
 def sql_get_ids():
     cur = connection.cursor()
     cur.execute("SELECT DISTINCT user_id FROM tasks")
@@ -97,7 +84,6 @@ def sql_get_ids():
     connection.commit()
     cur.close()
     return user_ids
-
 def restricted(func):
     @wraps(func)
     def wrapped(update, context, *args, **kwargs):
@@ -107,11 +93,9 @@ def restricted(func):
             return
         return func(update, context, *args, **kwargs)
     return wrapped
-
 def add_to_database(user_id, new_task):
     print("/add: User with id: " + str(user_id) + " added a new task: ")
     sql_insert(connection, user_id, new_task)
-
 def get_text(user_id):
     ith = 0
     text = ""
@@ -123,11 +107,9 @@ def get_text(user_id):
             ith_text = str(ith - 1) + ". " + task_i[0] + "\n"
             text = text + ith_text
     return text
-
 def cancel(update, context):
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.cancelled_successfully, reply_markup = reply_markup)
     return ConversationHandler.END
-
 @restricted
 def admin_send_to_all(update, context):
     try:
@@ -139,7 +121,6 @@ def admin_send_to_all(update, context):
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.send_to_all_success_command_response, reply_markup = reply_markup)
     except (IndexError, ValueError):
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.send_to_all_error_command_response, reply_markup = reply_markup)
-
 @restricted
 def admin_send_to(update, context):
     try:
@@ -155,11 +136,9 @@ def admin_send_to(update, context):
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.send_to_all_success_command_response, reply_markup = reply_markup)
     except (IndexError, ValueError):
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.send_to_error_command_response, reply_markup = reply_markup)
-
 @restricted
 def admin_help(update, context):
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.admin_help_command_response, reply_markup = reply_markup)
-
 def build_menu(buttons,
                n_cols,
                header_buttons=None,
@@ -170,7 +149,6 @@ def build_menu(buttons,
     if footer_buttons:
         menu.append([footer_buttons])
     return menu
-
 def clear(update, context):
     keyboard = [
         InlineKeyboardButton("Да", callback_data = '1'),
@@ -179,7 +157,6 @@ def clear(update, context):
     reply_keyboard = InlineKeyboardMarkup(build_menu(keyboard, n_cols = 1))
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.clear_command_confirmation, reply_markup = reply_keyboard)    
     return bot_states.CHECK
-
 def check_query(update, context):
     query = update.callback_query
     user_id = update.effective_user.id
@@ -195,7 +172,6 @@ def check_query(update, context):
     else:
         query.edit_message_text(text = "Окей 😉")
     return ConversationHandler.END
-
 def delete_task(update, context):
     keyboard = []
     user_id = update.message.from_user.id
@@ -211,20 +187,6 @@ def delete_task(update, context):
     reply_keyboard = InlineKeyboardMarkup(build_menu(keyboard, n_cols = 1))
     context.bot.send_message(chat_id = update.effective_user.id, text = bot_messages.delete_task_write_task, reply_markup = reply_keyboard)
     return bot_states.CHECK_DELETE
-
-def show_menu(update, context):
-    keyboard = []
-    menu = get_type("all")
-    number_of_meal = len(menu)
-    if number_of_meal == 0:
-        context.bot.send_message(chat_id = update.effective_user.id, text = bot_messages.tasks_empty_command_response, reply_markup = reply_markup)
-    ith = 0
-    for i in menu:
-        ith += 1
-        keyboard.append(InlineKeyboardButton(i[0] + ' | ' + str(i[1]), callback_data = srt(ith)))
-    reply_keyboard = InlineKeyboardMarkup(build_menu(keyboard, n_cols = 1))
-    context.bot.send_message(chat_id = update.effective_user.id , text = bot_messages.delete_task_write_task , reply_markup = reply_markup)
-
 def check_delete_query(update, context):
     user_id = update.effective_user.id
     query = update.callback_query
@@ -247,7 +209,6 @@ def read_task_num(update, context):
     except (IndexError, ValueError):
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.delete_task_error_command_response, reply_markup = reply_markup)
     return ConversationHandler.END
-
 def add_task(update, context):
     if not context.args:
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.add_task_write_task, reply_markup = reply_markup)
@@ -258,7 +219,6 @@ def add_task(update, context):
     whole_text = bot_messages.updated_tasks_command_response + get_text(user_id)
     whole_text = whole_text + bot_messages.guide_order
     context.bot.send_message(chat_id = update.message.chat_id, text = whole_text, reply_markup = reply_markup)
-
 def order(update, context):
     user_id = update.message.from_user.id
     whole_text = get_text(user_id)
@@ -267,7 +227,6 @@ def order(update, context):
         send_message(context, admin_id, text)
     send_message(context, user_id, bot_messages.successfully_ordered)
     sql_clear(user_id)
-
 def read_new_task(update, context):
     new_task = update.message.text
     user_id = update.message.from_user.id
@@ -277,7 +236,6 @@ def read_new_task(update, context):
     if sql_number_of_tasks(user_id) == 1:
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.guide_set_timer, reply_markup = reply_markup)
     return ConversationHandler.END
-
 def feedback(update, context):
     if not context.args:
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.feedback_write_text,  reply_markup = reply_markup)
@@ -294,7 +252,6 @@ def feedback(update, context):
     for admin_id in LIST_OF_ADMINS:
         context.bot.send_message(chat_id = admin_id, text = text)
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.feedback_success_command_response, reply_markup = reply_markup)
-
 def read_feedback(update, context):
     text = update.message.text
     user_id = update.message.from_user.id
@@ -304,7 +261,6 @@ def read_feedback(update, context):
         context.bot.send_message(chat_id = admin_id, text = text)
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.feedback_success_command_response, reply_markup = reply_markup)
     return ConversationHandler.END
-
 def show_tasks(update, context):
     user_id = update.message.from_user.id
     user_tasks = sql_number_of_tasks(user_id)
@@ -313,18 +269,12 @@ def show_tasks(update, context):
     else:
         whole_text = bot_messages.tasks_empty_command_response
     context.bot.send_message(chat_id = update.message.chat_id, text = whole_text, reply_markup = reply_markup)
-
-
-
 def start(update, context):
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.start_command_response, reply_markup = reply_markup)
-
 def help(update, context):
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.help_command_response, reply_markup = reply_markup)
-
 def unknown(update, context):
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.unknown_command_response, reply_markup = reply_markup)
-
 def main():
     updater = Updater(token = os.environ['BOT_TOKEN'], use_context = True)
     dp = updater.dispatcher
@@ -332,8 +282,7 @@ def main():
     feedback_handler = CommandHandler('feedback', feedback, pass_args = True, pass_chat_data = True)
     clear_handler = CommandHandler('clear', clear)
     delete_handler = CommandHandler('delete', delete_task, pass_args = True, pass_chat_data = True)
-    show_tasks_handler = PrefixHandler('🧺', 'Показать ваш заказ', show_menu)
-
+    show_tasks_handler = CommandHandler('showmenu', show_tasks)
     add_conv_handler = ConversationHandler(
         entry_points = [CommandHandler('add', add_task)],
         states = {
@@ -341,41 +290,37 @@ def main():
         },
         fallbacks = [CommandHandler('cancel', cancel)]
     )
-
     del_conv_handler = ConversationHandler(
-        entry_points = [PrefixHandler('🗑', 'Удалить из корзины', delete_task)],
+        entry_points = [CommandHandler('delete', delete_task)],
         states = {
             bot_states.CHECK_DELETE: [CallbackQueryHandler(check_delete_query)]
         },
         fallbacks = [CommandHandler('cancel', cancel)]
     )
-
     feedback_conv_handler = ConversationHandler(
-        entry_points = [CommandHandler('📬','Отправить отзыв', feedback)],
+        entry_points = [CommandHandler('feedback', feedback)],
         states = {
             bot_states.READ_FEEDBACK: [MessageHandler(Filters.text, read_feedback)]
         },
         fallbacks = [CommandHandler('cancel', cancel)]
     )
-
     clear_conv_hnadler = ConversationHandler(
-        entry_points = [PrefixHandler('🗑', 'Очистить корзину', clear)],
+        entry_points = [CommandHandler('clear', clear)],
         states = {
             bot_states.CHECK: [CallbackQueryHandler(check_query)]
         },
         fallbacks = [CommandHandler('cancel', cancel)]
     )
 
+    order_handler = PrefixHandler('З', 'аказать', order)
     order_handler = PrefixHandler('🛎️', 'Заказать', order)
-    add_handler = PrefixHandler('🧺', 'Добавить в корзину', add_task)
+    add_handler = CommandHandler('add', add_task)
     start_handler = CommandHandler('start', start)
-    help_handler = PrefixHandler('🗒️', 'Показать все функии', help)
+    help_handler = CommandHandler('help', help)
     admin_help_handler = CommandHandler('admin_help', admin_help)
     admin_send_to_all_handler = CommandHandler('admin_send_to_all', admin_send_to_all, pass_args = True, pass_chat_data = True)
     admin_send_to_handler = CommandHandler('admin_send_to', admin_send_to, pass_args = True, pass_chat_data = True)
     unknown_handler = MessageHandler(Filters.command, unknown)
-
-
     dp.add_handler(order_handler)
     dp.add_handler(clear_conv_hnadler)
     dp.add_handler(feedback_conv_handler)
@@ -392,6 +337,7 @@ def main():
     dp.add_handler(admin_send_to_all_handler)
     dp.add_handler(admin_send_to_handler)
     dp.add_handler(unknown_handler)
+    
     updater.start_polling()
     updater.idle()
 if __name__ == '__main__':
