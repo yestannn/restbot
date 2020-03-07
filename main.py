@@ -212,6 +212,19 @@ def delete_task(update, context):
     context.bot.send_message(chat_id = update.effective_user.id, text = bot_messages.delete_task_write_task, reply_markup = reply_keyboard)
     return bot_states.CHECK_DELETE
 
+def show_menu(update, context):
+    keyboard = []
+    menu = get_type("all")
+    number_of_meal = len(menu)
+    if number_of_meal == 0:
+        context.bot.send_message(chat_id = update.effective_user.id, text = bot_messages.tasks_empty_command_response, reply_markup = reply_markup)
+    ith = 0
+    for i in menu:
+        ith += 1
+        keyboard.append(InlineKeyboardButton(i[0] + ' | ' + str(i[1]), callback_data = srt(ith)))
+    reply_keyboard = InlineKeyboardMarkup(build_menu(keyboard, n_cols = 1))
+    context.bot.send_message(chat_id = update.effective_user.id , text = bot_messages.delete_task_write_task , reply_markup = reply_markup)
+
 def check_delete_query(update, context):
     user_id = update.effective_user.id
     query = update.callback_query
@@ -301,6 +314,8 @@ def show_tasks(update, context):
         whole_text = bot_messages.tasks_empty_command_response
     context.bot.send_message(chat_id = update.message.chat_id, text = whole_text, reply_markup = reply_markup)
 
+
+
 def start(update, context):
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.start_command_response, reply_markup = reply_markup)
 
@@ -317,7 +332,7 @@ def main():
     feedback_handler = CommandHandler('feedback', feedback, pass_args = True, pass_chat_data = True)
     clear_handler = CommandHandler('clear', clear)
     delete_handler = CommandHandler('delete', delete_task, pass_args = True, pass_chat_data = True)
-    show_tasks_handler = PrefixHandler('🧺', 'Показать ваш заказ', show_tasks)
+    show_tasks_handler = PrefixHandler('🧺', 'Показать ваш заказ', show_menu)
 
     add_conv_handler = ConversationHandler(
         entry_points = [CommandHandler('add', add_task)],
