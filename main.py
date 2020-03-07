@@ -21,10 +21,12 @@ logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message
                      level = logging.INFO)
 logger = logging.getLogger(__name__)
 LIST_OF_ADMINS = [771840280]
-custom_keyboard = [['Добавить в корзину 🧺', 'Удалить из корзины 🧺'],
-                   ['Указать стол 📅', 'Показать корзину 🧺'],
-                   ['Очистить корзину 🧺', 'Заказать 🛎️'],
-                   ['Отправить отзыв 📬', 'Все функии 🗒️']]
+
+custom_keyboard = [['🛎Заказать'],
+                   ['🧺Добавить в корзину', '🧺Показать ваш заказ'],
+                   ['🗑Очистить корзину', '🗑Удалить из корзины'],
+                   ['📅Указать номер стола', '📬Отправить отзыв'],
+                   ['🗒️Все функии']]
                    
 reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard = True)
 connection = psycopg2.connect(database = DB_Database, user = DB_User, password = DB_Password, host = DB_Host, port = DB_Port)
@@ -229,6 +231,7 @@ def read_task_num(update, context):
     except (IndexError, ValueError):
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.delete_task_error_command_response, reply_markup = reply_markup)
     return ConversationHandler.END
+
 def add_task(update, context):
     if not context.args:
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.add_task_write_task, reply_markup = reply_markup)
@@ -239,6 +242,7 @@ def add_task(update, context):
     whole_text = bot_messages.updated_tasks_command_response + get_text(user_id)
     whole_text = whole_text + bot_messages.guide_order
     context.bot.send_message(chat_id = update.message.chat_id, text = whole_text, reply_markup = reply_markup)
+
 def order(update, context):
     user_id = update.message.from_user.id
     whole_text = get_text(user_id)
@@ -247,6 +251,7 @@ def order(update, context):
         send_message(context, admin_id, text)
     send_message(context, user_id, bot_messages.successfully_ordered)
     sql_clear(user_id)
+
 def read_new_task(update, context):
     new_task = update.message.text
     user_id = update.message.from_user.id
@@ -256,6 +261,7 @@ def read_new_task(update, context):
     if sql_number_of_tasks(user_id) == 1:
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.guide_set_timer, reply_markup = reply_markup)
     return ConversationHandler.END
+
 def feedback(update, context):
     if not context.args:
         context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.feedback_write_text,  reply_markup = reply_markup)
@@ -272,6 +278,7 @@ def feedback(update, context):
     for admin_id in LIST_OF_ADMINS:
         context.bot.send_message(chat_id = admin_id, text = text)
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.feedback_success_command_response, reply_markup = reply_markup)
+
 def read_feedback(update, context):
     text = update.message.text
     user_id = update.message.from_user.id
@@ -281,6 +288,7 @@ def read_feedback(update, context):
         context.bot.send_message(chat_id = admin_id, text = text)
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.feedback_success_command_response, reply_markup = reply_markup)
     return ConversationHandler.END
+
 def show_tasks(update, context):
     user_id = update.message.from_user.id
     user_tasks = sql_number_of_tasks(user_id)
@@ -289,12 +297,16 @@ def show_tasks(update, context):
     else:
         whole_text = bot_messages.tasks_empty_command_response
     context.bot.send_message(chat_id = update.message.chat_id, text = whole_text, reply_markup = reply_markup)
+
 def start(update, context):
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.start_command_response, reply_markup = reply_markup)
+
 def help(update, context):
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.help_command_response, reply_markup = reply_markup)
+
 def unknown(update, context):
     context.bot.send_message(chat_id = update.message.chat_id, text = bot_messages.unknown_command_response, reply_markup = reply_markup)
+
 def main():
     updater = Updater(token = os.environ['BOT_TOKEN'], use_context = True)
     dp = updater.dispatcher
