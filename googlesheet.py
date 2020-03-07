@@ -21,7 +21,7 @@ def get_type(typee):
 	global meal 
 
 	result = []
-	current = ['']*2
+	current = [''] * 2
 	column1 = meal.col_values(1)
 	column2 = meal.col_values(2)
 	column3 = meal.col_values(3)
@@ -46,10 +46,6 @@ def get_type(typee):
 
 
 	return result
-
-
-a =str(input())
-pprint(get_type(a))
 
 
 

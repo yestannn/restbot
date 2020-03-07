@@ -4,15 +4,19 @@ import time
 import os
 import psycopg2
 import bot_messages, bot_states
+
 from datetime import datetime
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, InlineQueryHandler, ConversationHandler, CallbackQueryHandler, PrefixHandler
 from telegram import InlineQueryResultArticle, InputTextMessageContent, ReplyKeyboardMarkup, ReplyKeyboardRemove, InlineKeyboardButton, InlineKeyboardMarkup
 from functools import wraps
+from googlesheet import *
+
 DB_Host = os.environ['DB_Host']
 DB_Database = os.environ['DB_Database']
 DB_User = os.environ['DB_User']
 DB_Port = os.environ['DB_Port']
 DB_Password = os.environ['DB_Password']
+
 logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level = logging.INFO)
 logger = logging.getLogger(__name__)
@@ -198,9 +202,10 @@ def show_menu(update, context):
     ith = 0
     for i in menu:
         ith += 1
-        keyboard.append(InlineKeyboardButton(i[0] + ' | ' + str(i[1]), callback_data = srt(ith)))
+        keyboard.append(InlineKeyboardButton(i[0] + ' | ' + str(i[1]), callback_data = str(ith)))
     reply_keyboard = InlineKeyboardMarkup(build_menu(keyboard, n_cols = 1))
-    context.bot.send_message(chat_id = update.effective_user.id , text = bot_messages.delete_task_write_task , reply_markup = reply_markup)
+
+    context.bot.send_message(chat_id = update.effective_user.id , text = bot_messages.delete_task_write_task , reply_markup = reply_keyboard)
 
 def check_delete_query(update, context):
     user_id = update.effective_user.id
