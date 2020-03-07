@@ -347,7 +347,7 @@ def main():
                 #    ['🗑Очистить корзину', '🗑Удалить из корзины'],
                 #    ['📅Указать номер стола', '📬Отправить отзыв'],
     order_handler = PrefixHandler('🛎', 'Заказать', order)
-    add_handler = PrefixHandler('🧺', ['Добавить', 'в', 'корзину'], add_task)
+    add_handler = PrefixHandler('🧺', 'Добавить' + 'в' + 'корзину', add_task)
     start_handler = CommandHandler('start', start)
     help_handler = PrefixHandler('🗒️', 'Все_функции', help)
     admin_help_handler = CommandHandler('admin_help', admin_help)
