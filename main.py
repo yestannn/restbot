@@ -26,7 +26,7 @@ custom_keyboard = [['🛎Заказать'],
                    ['🧺Добавить в корзину', '🧺Показать ваш заказ'],
                    ['🗑Очистить корзину', '🗑Удалить из корзины'],
                    ['📅Указать номер стола', '📬Отправить отзыв'],
-                   ['🗒️Все функции']]
+                   ['🗒️Все_функции']]
                    
 reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard = True)
 connection = psycopg2.connect(database = DB_Database, user = DB_User, password = DB_Password, host = DB_Host, port = DB_Port)
@@ -349,7 +349,7 @@ def main():
     order_handler = PrefixHandler('🛎', 'Заказать', order)
     add_handler = PrefixHandler('🧺', 'Добавить в корзину', add_task)
     start_handler = CommandHandler('start', start)
-    help_handler = PrefixHandler('🗒️', 'ВсеФункции', help)
+    help_handler = PrefixHandler('🗒️', 'Все_функции', help)
     admin_help_handler = CommandHandler('admin_help', admin_help)
     admin_send_to_all_handler = CommandHandler('admin_send_to_all', admin_send_to_all, pass_args = True, pass_chat_data = True)
     admin_send_to_handler = CommandHandler('admin_send_to', admin_send_to, pass_args = True, pass_chat_data = True)
