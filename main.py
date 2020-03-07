@@ -343,16 +343,18 @@ def main():
         },
         fallbacks = [CommandHandler('cancel', cancel)]
     )
-
-    order_handler = PrefixHandler('З', 'аказать', order)
-    order_handler = PrefixHandler('🛎️', 'Заказать', order)
-    add_handler = CommandHandler('add', add_task)
+                #    ['', '🧺Показать ваш заказ'],
+                #    ['🗑Очистить корзину', '🗑Удалить из корзины'],
+                #    ['📅Указать номер стола', '📬Отправить отзыв'],
+    order_handler = PrefixHandler('🛎', 'Заказать', order)
+    add_handler = PrefixHandler('🧺', 'Добавить в корзину', add_task)
     start_handler = CommandHandler('start', start)
-    help_handler = CommandHandler('help', help)
+    help_handler = PrefixHandler('🗒️', 'Все функии', help)
     admin_help_handler = CommandHandler('admin_help', admin_help)
     admin_send_to_all_handler = CommandHandler('admin_send_to_all', admin_send_to_all, pass_args = True, pass_chat_data = True)
     admin_send_to_handler = CommandHandler('admin_send_to', admin_send_to, pass_args = True, pass_chat_data = True)
     unknown_handler = MessageHandler(Filters.command, unknown)
+    
     dp.add_handler(order_handler)
     dp.add_handler(clear_conv_hnadler)
     dp.add_handler(feedback_conv_handler)
