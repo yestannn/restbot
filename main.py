@@ -350,7 +350,7 @@ def main():
         fallbacks = [CommandHandler('cancel', cancel)]
     )
 
-    order_handler = CommandHandler('order', order)
+    refixHandler('Заказать 🛎️', callback)
     add_handler = CommandHandler('add', add_task)
     start_handler = CommandHandler('start', start)
     help_handler = CommandHandler('help', help)
