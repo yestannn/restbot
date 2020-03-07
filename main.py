@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 LIST_OF_ADMINS = [771840280]
 custom_keyboard = [['Добавить в корзину 🧺', 'Удалить из корзины 🧺'],
                    ['Указать стол 📅', 'Показать корзину 🧺'],
-                   ['Очистить корзину 🧺', 'Заказать 🛎️'],
+                   ['Очистить корзину 🧺', '🛎 Заказать'],
                    ['Отправить отзыв 📬', 'Все функии 🗒️']]
                    
 reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard = True)
@@ -350,7 +350,7 @@ def main():
         fallbacks = [CommandHandler('cancel', cancel)]
     )
 
-    order_handler = PrefixHandler('🛎️', 'Заказать', order)
+    order_handler = PrefixHandler('🛎️', ' Заказать', order)
     add_handler = CommandHandler('add', add_task)
     start_handler = CommandHandler('start', start)
     help_handler = CommandHandler('help', help)
