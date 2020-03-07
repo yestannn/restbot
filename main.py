@@ -19,10 +19,11 @@ logging.basicConfig(format = '%(asctime)s - %(name)s - %(levelname)s - %(message
                      level = logging.INFO)
 logger = logging.getLogger(__name__)
 LIST_OF_ADMINS = [771840280]
-custom_keyboard = [['Добавить в корзину 🧺', 'Удалить из корзины 🧺'],
-                   ['Указать стол 📅', 'Показать корзину 🧺'],
-                   ['Очистить корзину 🧺', '🛎 Заказать'],
-                   ['Отправить отзыв 📬', 'Все функии 🗒️']]
+custom_keyboard = [['🛎Заказать'],
+                   ['🧺Добавить в корзину', '🧺Показать ваш заказ'],
+                   ['🗑Очистить корзину', '🗑Удалить из корзины'],
+                   ['📅Указать номер стола', '📬Отправить отзыв'],
+                   ['🗒️Все функии']]
                    
 reply_markup = telegram.ReplyKeyboardMarkup(custom_keyboard, resize_keyboard = True)
 connection = psycopg2.connect(database = DB_Database, user = DB_User, password = DB_Password, host = DB_Host, port = DB_Port)
@@ -316,7 +317,7 @@ def main():
     feedback_handler = CommandHandler('feedback', feedback, pass_args = True, pass_chat_data = True)
     clear_handler = CommandHandler('clear', clear)
     delete_handler = CommandHandler('delete', delete_task, pass_args = True, pass_chat_data = True)
-    show_tasks_handler = CommandHandler('showmenu', show_tasks)
+    show_tasks_handler = PrefixHandler('🧺', 'Показать ваш заказ', show_tasks)
 
     add_conv_handler = ConversationHandler(
         entry_points = [CommandHandler('add', add_task)],
@@ -327,7 +328,7 @@ def main():
     )
 
     del_conv_handler = ConversationHandler(
-        entry_points = [CommandHandler('delete', delete_task)],
+        entry_points = [PrefixHandler('🗑', 'Удалить из корзины', delete_task)],
         states = {
             bot_states.CHECK_DELETE: [CallbackQueryHandler(check_delete_query)]
         },
@@ -335,7 +336,7 @@ def main():
     )
 
     feedback_conv_handler = ConversationHandler(
-        entry_points = [CommandHandler('feedback', feedback)],
+        entry_points = [CommandHandler('📬','Отправить отзыв', feedback)],
         states = {
             bot_states.READ_FEEDBACK: [MessageHandler(Filters.text, read_feedback)]
         },
@@ -343,17 +344,17 @@ def main():
     )
 
     clear_conv_hnadler = ConversationHandler(
-        entry_points = [CommandHandler('clear', clear)],
+        entry_points = [PrefixHandler('🗑', 'Очистить корзину', clear)],
         states = {
             bot_states.CHECK: [CallbackQueryHandler(check_query)]
         },
         fallbacks = [CommandHandler('cancel', cancel)]
     )
 
-    order_handler = PrefixHandler('🛎️', " Заказать", order)
-    add_handler = CommandHandler('add', add_task)
+    order_handler = PrefixHandler('🛎️', 'Заказать', order)
+    add_handler = PrefixHandler('🧺', 'Добавить в корзину', add_task)
     start_handler = CommandHandler('start', start)
-    help_handler = CommandHandler('help', help)
+    help_handler = PrefixHandler('🗒️', 'Показать все функии', help)
     admin_help_handler = CommandHandler('admin_help', admin_help)
     admin_send_to_all_handler = CommandHandler('admin_send_to_all', admin_send_to_all, pass_args = True, pass_chat_data = True)
     admin_send_to_handler = CommandHandler('admin_send_to', admin_send_to, pass_args = True, pass_chat_data = True)
@@ -376,7 +377,6 @@ def main():
     dp.add_handler(admin_send_to_all_handler)
     dp.add_handler(admin_send_to_handler)
     dp.add_handler(unknown_handler)
-
     updater.start_polling()
     updater.idle()
 if __name__ == '__main__':
